@@ -1,6 +1,18 @@
 import msprime
 
 
+def generate_demographic_events(random_seed: int = 42) -> list:
+    """
+    Generate demographic events.
+    1) We generate number of events
+    2) We choise time when events happens
+    3) We choise how population has changed
+
+    For more information learn msprime documentation
+    """
+    pass
+
+
 class DataGenerator():
     """
     """
