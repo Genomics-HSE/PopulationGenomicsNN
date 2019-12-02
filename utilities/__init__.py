@@ -69,14 +69,19 @@ class DataGenerator():
 
     def __call__(self):
         """
-        return haplotypes and coalescent time
+        return haplotype, recombination points and coalescent time
         """
         if self._data is None:
             raise "Firstly you must run simulation"
 
         for replica in self._data:
 
-            haplotypes = []
+            # TODO Защита от записи в один и тот же участок генома 
+            haplotype = [0] * self.len
+
+            for mutation in replica.mutations():
+                point = round(mutation.position)
+                haplotype[point] = 1
 
             recombination_points = []
             coal_times = []
@@ -87,4 +92,4 @@ class DataGenerator():
                     coal_times.append(tree.total_branch_length /
                                       LENGTH_NORMALIZE_CONST)
 
-            yield (haplotypes, (recombination_points, coal_times))
+            yield (haplotype, (recombination_points, coal_times))
