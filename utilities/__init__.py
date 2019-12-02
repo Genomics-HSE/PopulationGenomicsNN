@@ -1,6 +1,9 @@
 import msprime
 
 
+LENGTH_NORMALIZE_CONST = 4
+
+
 def generate_demographic_events(random_seed: int = 42) -> list:
     """
     Generate demographic events.
@@ -72,4 +75,12 @@ class DataGenerator():
             raise "Firstly you must run simulation"
 
         for replica in self._data:
-            pass
+
+            haplotypes = []
+
+            recombination_points = []
+
+            coal_times = [t.total_branch_length /
+                          LENGTH_NORMALIZE_CONST for t in replica.trees]
+
+            yield (haplotypes, (recombination_points, coal_times))
