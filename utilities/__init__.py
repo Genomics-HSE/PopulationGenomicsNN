@@ -79,12 +79,12 @@ class DataGenerator():
             haplotypes = []
 
             recombination_points = []
+            coal_times = []
             for tree in replica.trees():
-                # Здесь могут быть проблемы, если рекомбинации будут в одном и том же участве генома (после дескритизации)
-                # Правда это не имеет смысла. Лечим просто через использование set? Но тогда надо учитывать это и во времени
-                recombination_points.append(round(tree.get_interval()[0]))
-
-            coal_times = [t.total_branch_length /
-                          LENGTH_NORMALIZE_CONST for t in replica.trees]
+                point = round(tree.get_interval()[0])
+                if point not in recombination_points:
+                    recombination_points.append(point)
+                    coal_times.append(tree.total_branch_length /
+                                      LENGTH_NORMALIZE_CONST)
 
             yield (haplotypes, (recombination_points, coal_times))
