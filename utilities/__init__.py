@@ -18,6 +18,16 @@ def generate_demographic_events(random_seed: int = 42) -> list:
 
 class DataGenerator():
     """
+    Use as:
+        >>> import utilities
+        >>> dg = utilities.DataGenerator(0.1,0.1,[msprime.PopulationParametersChange(0,1)],10)
+        >>> dg.run_simulation()
+        >>> i = next(dg)
+        >>> print(i)
+            ([0, 0, 0, 0, 0, 0, 0, 0, 0, 0], ([0], [0.20264850163110007]))
+
+            (haplotypes after bite& , ([recombination points], [coalescent times]))
+
     """
 
     def __init__(self, recombination_rate: float,
@@ -67,7 +77,10 @@ class DataGenerator():
         )
         return self._data
 
-    def __call__(self):
+    def __iter__(self):
+        return self
+
+    def __next__(self):
         """
         return haplotype, recombination points and coalescent time
         """
@@ -92,4 +105,4 @@ class DataGenerator():
                     coal_times.append(tree.total_branch_length /
                                       LENGTH_NORMALIZE_CONST)
 
-            yield (haplotype, (recombination_points, coal_times))
+            return (haplotype, (recombination_points, coal_times))
