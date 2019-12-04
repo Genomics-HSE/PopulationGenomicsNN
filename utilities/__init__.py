@@ -2,6 +2,7 @@ import msprime
 
 
 LENGTH_NORMALIZE_CONST = 4
+ZIPPED = False
 
 
 def generate_demographic_events(random_seed: int = 42) -> list:
@@ -109,4 +110,20 @@ class DataGenerator():
                     coal_times.append(tree.total_branch_length /
                                       LENGTH_NORMALIZE_CONST)
 
-            return (haplotype, (recombination_points, coal_times))
+            if ZIPPED:
+                return (haplotype, (recombination_points, coal_times))
+
+            haplotype = "".join([str(h) for h in haplotype])
+            times = [.0] * len(haplotype)
+            j_point = 0
+            j_time = -1
+            time = None
+            for i, _ in enumerate(times):
+                if j_point < len(recombination_points):
+                    if i == recombination_points[j_point]:
+                        j_point += 1
+                        j_time += 1
+                        time = coal_times[j_time]
+                times[i] = time
+
+            return (haplotype, times)
