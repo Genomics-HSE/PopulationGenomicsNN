@@ -12,6 +12,10 @@ def generate_demographic_events(random_seed: int = 42) -> list:
     3) We choise how population has changed
 
     For more information learn msprime documentation
+
+
+    Must return list of msprime.PopulationParametersChange objects
+
     """
     pass
 
