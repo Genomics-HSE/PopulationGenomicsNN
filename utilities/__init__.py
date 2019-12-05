@@ -1,8 +1,12 @@
+import numpy as np
+
 import msprime
 
 
 LENGTH_NORMALIZE_CONST = 4
 ZIPPED = False
+NUMBER_OF_EVENTS_LIMITS = (1, 20)
+MAX_T_LIMITS = (0.01, 30)
 
 
 def generate_demographic_events(random_seed: int = 42) -> list:
@@ -18,7 +22,14 @@ def generate_demographic_events(random_seed: int = 42) -> list:
     Must return list of msprime.PopulationParametersChange objects
 
     """
-    pass
+    number_of_events = np.random.uniform(
+        low=NUMBER_OF_EVENTS_LIMITS[0], high=NUMBER_OF_EVENTS_LIMITS[1])
+    max_t = np.random.uniform(low=MAX_T_LIMITS[0], high=MAX_T_LIMITS[1])
+    events = []
+    for _ in range(number_of_events - 1):
+        pass
+
+    return events
 
 
 class DataGenerator():
@@ -126,4 +137,4 @@ class DataGenerator():
                         time = coal_times[j_time]
                 times[i] = time
 
-            return (haplotype, times)
+            return (haplotype, times, recombination_points)
