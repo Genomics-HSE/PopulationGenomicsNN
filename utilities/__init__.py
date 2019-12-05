@@ -24,6 +24,14 @@ def generate_demographic_events(random_seed: int = 42) -> list:
     Must return list of msprime.PopulationParametersChange objects
 
     """
+
+    def give_time():
+        return np.random.exponential(LAMBDA_EXP)
+
+    def give_population():
+        return np.random.randint(
+            low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1])
+
     number_of_events = np.random.randint(
         low=NUMBER_OF_EVENTS_LIMITS[0], high=NUMBER_OF_EVENTS_LIMITS[1])
     max_t = np.random.uniform(low=MAX_T_LIMITS[0], high=MAX_T_LIMITS[1])
@@ -32,15 +40,13 @@ def generate_demographic_events(random_seed: int = 42) -> list:
         # TODO
         return time
 
-    old_population = np.random.randint(
-        low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1])
+    old_population = give_population()
     events = [msprime.PopulationParametersChange(
         time=0, initial_size=old_population)]
 
     for _ in range(number_of_events - 1):
         time = np.random.exponential(LAMBDA_EXP)
-        new_population = np.random.randint(
-            low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1])
+        new_population = give_population()
         # time -> exponentional time
         time = to_exp_time(time)
         events.append(
@@ -49,13 +55,12 @@ def generate_demographic_events(random_seed: int = 42) -> list:
         )
         old_population = new_population
 
-        new_population = np.random.randint(
-            low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1])
+    new_population = give_population()
 
-        events.append(
-            msprime.PopulationParametersChange(
-                time=max_t, initial_size=old_population, growth_rate=new_population/old_population)
-        )
+    events.append(
+        msprime.PopulationParametersChange(
+            time=max_t, initial_size=old_population, growth_rate=new_population/old_population)
+    )
 
     return events
 
