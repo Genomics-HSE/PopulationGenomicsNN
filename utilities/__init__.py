@@ -10,8 +10,11 @@ MAX_T_LIMITS = (0.01, 30)
 LAMBDA_EXP = 1.0
 POPULATION_LIMITS = (250, 100000)
 
+RANDOM_SEED = 42
+np.random.seed(RANDOM_SEED)
 
-def generate_demographic_events(random_seed: int = 42) -> list:
+
+def generate_demographic_events() -> list:
     """
     Generate demographic events.
     1) We generate number of events
@@ -38,6 +41,7 @@ def generate_demographic_events(random_seed: int = 42) -> list:
 
     def to_exp_time(time: int) -> int:
         # TODO
+        # time -> exponentional time
         return time
 
     old_population = give_population()
@@ -45,9 +49,8 @@ def generate_demographic_events(random_seed: int = 42) -> list:
         time=0, initial_size=old_population)]
 
     for _ in range(number_of_events - 1):
-        time = np.random.exponential(LAMBDA_EXP)
+        time = give_time()
         new_population = give_population()
-        # time -> exponentional time
         time = to_exp_time(time)
         events.append(
             msprime.PopulationParametersChange(
