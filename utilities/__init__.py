@@ -3,6 +3,9 @@ import numpy as np
 import msprime
 
 
+RO_LIMIT = (1/100, 100)
+NUE_LIMIT = (1/100, 100)
+
 LENGTH_NORMALIZE_CONST = 4
 ZIPPED = False
 NUMBER_OF_EVENTS_LIMITS = (1, 20)
@@ -25,47 +28,44 @@ def generate_demographic_events() -> list:
 
 
     Must return list of msprime.PopulationParametersChange objects
-
+    https://msprime.readthedocs.io/en/stable/api.html#demographic-events
     """
-
-    def give_time():
-        return np.random.exponential(LAMBDA_EXP)
-
-    def give_population():
-        return np.random.randint(
-            low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1])
-
     number_of_events = np.random.randint(
         low=NUMBER_OF_EVENTS_LIMITS[0], high=NUMBER_OF_EVENTS_LIMITS[1])
     max_t = np.random.uniform(low=MAX_T_LIMITS[0], high=MAX_T_LIMITS[1])
 
-    def to_exp_time(time: int) -> int:
-        # TODO
+    times = sorted(np.random.exponential(LAMBDA_EXP, size=number_of_events))
+
+    alpha = 1.0
+    beta = np.log(max_t + 1)/times[-1]
+
+    def to_exp_time(time: float) -> float:
         # time -> exponentional time
-        return time
+        return alpha*(np.exp(beta*time) - 1)
 
-    old_population = give_population()
+    exp_times = [to_exp_time(t) for t in times]
+    population_sizes = np.random.randint(
+        low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1], size=number_of_events)
+
+    init_population = np.random.randint(
+        low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1])
+
     events = [msprime.PopulationParametersChange(
-        time=0, initial_size=old_population)]
+        0, initial_size=init_population)]
 
-    for _ in range(number_of_events - 1):
-        time = give_time()
-        new_population = give_population()
-        time = to_exp_time(time)
+    for t, s in zip(exp_times, population_sizes):
         events.append(
-            msprime.PopulationParametersChange(
-                time=time, initial_size=old_population, growth_rate=new_population/old_population)
+            msprime.PopulationParametersChange(t, s)
         )
-        old_population = new_population
-
-    new_population = give_population()
-
-    events.append(
-        msprime.PopulationParametersChange(
-            time=max_t, initial_size=old_population, growth_rate=new_population/old_population)
-    )
-
     return events
+
+
+def give_ro() -> float:
+    return np.random.uniform(RO_LIMIT[0], RO_LIMIT[1])
+
+
+def give_nue() -> float:
+    return np.random.uniform(NUE_LIMIT[0], NUE_LIMIT[1])
 
 
 class DataGenerator():
