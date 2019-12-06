@@ -139,14 +139,16 @@ class DataGenerator():
         if self._data is None:
             raise "Firstly you must run simulation"
 
-        for replica in self._data:
-
+        for j, replica in enumerate(self._data):
             # TODO Защита от записи в один и тот же участок генома 
             haplotype = [0] * self.len
 
             for mutation in replica.mutations():
                 point = round(mutation.position)
-                haplotype[point] = 1
+                if point < self.len:
+                    haplotype[point] = 1
+                else:
+                    haplotype[point - 1] = 1
 
             recombination_points = []
             coal_times = []
