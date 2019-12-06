@@ -1,10 +1,12 @@
 import numpy as np
 
 import msprime
+import (exp,log) from math
 
-
-RO_LIMIT = (1/100, 100)
-NUE_LIMIT = (1/100, 100)
+RHO_HUMAN = 1.6*10e-9
+MU_HUMAN = 1.25*10e-8
+RHO_LIMIT = (log(RHO_HUMAN)-100, log(RHO_HUMAN)+100)
+MU_LIMIT = (log(MU_HUMAN)-100, log(MU_HUMAN)+100)
 
 LENGTH_NORMALIZE_CONST = 4
 ZIPPED = False
@@ -60,12 +62,12 @@ def generate_demographic_events() -> list:
     return events
 
 
-def give_ro() -> float:
-    return np.random.uniform(RO_LIMIT[0], RO_LIMIT[1])
+def give_rho() -> float:
+    return exp( np.random.uniform(RHO_LIMIT[0], RHO_LIMIT[1]) )
 
 
-def give_nue() -> float:
-    return np.random.uniform(NUE_LIMIT[0], NUE_LIMIT[1])
+def give_mu() -> float:
+    return exp( np.random.uniform(MU_LIMIT[0], MU_LIMIT[1]) )
 
 
 class DataGenerator():
