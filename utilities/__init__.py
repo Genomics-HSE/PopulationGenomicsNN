@@ -1,7 +1,7 @@
 import numpy as np
 
 import msprime
-import (exp,log) from math
+from math import (exp,log)
 
 RHO_HUMAN = 1.6*10e-9
 MU_HUMAN = 1.25*10e-8
