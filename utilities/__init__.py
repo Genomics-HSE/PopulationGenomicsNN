@@ -139,40 +139,43 @@ class DataGenerator():
         if self._data is None:
             raise "Firstly you must run simulation"
 
-        for j, replica in enumerate(self._data):
-            # TODO Защита от записи в один и тот же участок генома 
-            haplotype = [0] * self.len
+        # for j, replica in enumerate(self._data):
 
-            for mutation in replica.mutations():
-                point = round(mutation.position)
-                if point < self.len:
-                    haplotype[point] = 1
-                else:
-                    haplotype[point - 1] = 1
+        replica = next(self._data)
 
-            recombination_points = []
-            coal_times = []
-            for tree in replica.trees():
-                point = round(tree.get_interval()[0])
-                if point not in recombination_points:
-                    recombination_points.append(point)
-                    coal_times.append(tree.total_branch_length /
-                                      LENGTH_NORMALIZE_CONST)
+        # TODO Защита от записи в один и тот же участок генома 
+        haplotype = [0] * self.len
 
-            if ZIPPED:
-                return (haplotype, (recombination_points, coal_times))
+        for mutation in replica.mutations():
+            point = round(mutation.position)
+            if point < self.len:
+                haplotype[point] = 1
+            else:
+                haplotype[point - 1] = 1
 
-            haplotype = "".join([str(h) for h in haplotype])
-            times = [.0] * len(haplotype)
-            j_point = 0
-            j_time = -1
-            time = None
-            for i, _ in enumerate(times):
-                if j_point < len(recombination_points):
-                    if i == recombination_points[j_point]:
-                        j_point += 1
-                        j_time += 1
-                        time = coal_times[j_time]
-                times[i] = time
+        recombination_points = []
+        coal_times = []
+        for tree in replica.trees():
+            point = round(tree.get_interval()[0])
+            if point not in recombination_points:
+                recombination_points.append(point)
+                coal_times.append(tree.total_branch_length /
+                                  LENGTH_NORMALIZE_CONST)
 
-            return (haplotype, times, recombination_points)
+        if ZIPPED:
+            return (haplotype, (recombination_points, coal_times))
+
+        haplotype = "".join([str(h) for h in haplotype])
+        times = [.0] * len(haplotype)
+        j_point = 0
+        j_time = -1
+        time = None
+        for i, _ in enumerate(times):
+            if j_point < len(recombination_points):
+                if i == recombination_points[j_point]:
+                    j_point += 1
+                    j_time += 1
+                    time = coal_times[j_time]
+            times[i] = time
+
+        return (haplotype, times, recombination_points)
