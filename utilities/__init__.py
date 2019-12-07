@@ -1,7 +1,7 @@
 import numpy as np
 
 import msprime
-from math import (exp,log)
+from math import (exp, log)
 
 RHO_HUMAN = 1.6*10e-9
 MU_HUMAN = 1.25*10e-8
@@ -14,12 +14,13 @@ NUMBER_OF_EVENTS_LIMITS = (1, 20)
 MAX_T_LIMITS = (0.01, 30)
 LAMBDA_EXP = 1.0
 POPULATION_LIMITS = (250, 100000)
+POPULATION = 5000
 
 RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
 
 
-def generate_demographic_events() -> list:
+def generate_demographic_events(popilation: int = POPULATION) -> list:
     """
     Generate demographic events.
     1) We generate number of events
@@ -46,28 +47,33 @@ def generate_demographic_events() -> list:
         return alpha*(np.exp(beta*time) - 1)
 
     exp_times = [to_exp_time(t) for t in times]
-    population_sizes = np.random.randint(
-        low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1], size=number_of_events)
+    # population_sizes = np.random.randint(
+    #    low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1], size=number_of_events)
 
-    init_population = np.random.randint(
-        low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1])
+    population_sizes = np.random.beta(
+        a=2, b=5, size=number_of_events)*popilation
+
+    # init_population = np.random.randint(
+    #    low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1])
+
+    init_population = int(np.random.beta(a=2, b=5)*popilation)
 
     events = [msprime.PopulationParametersChange(
-        0, initial_size=init_population)]
+        0, initial_size=init_population, growth_rate=0)]
 
     for t, s in zip(exp_times, population_sizes):
         events.append(
-            msprime.PopulationParametersChange(t, s)
+            msprime.PopulationParametersChange(t, int(s), growth_rate=0)
         )
     return events
 
 
 def give_rho() -> float:
-    return exp( np.random.uniform(RHO_LIMIT[0], RHO_LIMIT[1]) )
+    return exp(np.random.uniform(RHO_LIMIT[0], RHO_LIMIT[1]))
 
 
 def give_mu() -> float:
-    return exp( np.random.uniform(MU_LIMIT[0], MU_LIMIT[1]) )
+    return exp(np.random.uniform(MU_LIMIT[0], MU_LIMIT[1]))
 
 
 class DataGenerator():
