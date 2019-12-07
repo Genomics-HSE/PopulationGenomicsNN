@@ -149,7 +149,10 @@ class DataGenerator():
 
         # for j, replica in enumerate(self._data):
 
-        replica = next(self._data)
+        try:
+            replica = next(self._data)
+        except StopIteration:
+            raise StopIteration
 
         # TODO Защита от записи в один и тот же участок генома 
         haplotype = [0] * self.len
