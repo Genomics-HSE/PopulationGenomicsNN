@@ -176,7 +176,7 @@ class DataGenerator():
         if ZIPPED:
             return (haplotype, (recombination_points, coal_times))
 
-        haplotype = "".join([str(h) for h in haplotype])
+        # haplotype = "".join([str(h) for h in haplotype])
         times = [.0] * len(haplotype)
         j_point = 0
         j_time = -1
