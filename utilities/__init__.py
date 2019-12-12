@@ -189,4 +189,4 @@ class DataGenerator():
                     time = coal_times[j_time]
             times[i] = time
 
-        return (haplotype, times, recombination_points)
+        return (np.array(haplotype), times, recombination_points)
