@@ -4,6 +4,7 @@ import torch.optim as optim
 import torch.nn as nn
 import numpy as np
 import torch
+import argparse
 
 import utilities
 
@@ -15,6 +16,18 @@ import utilities
 # 4) Add db to store results;
 # 5) Separate NN class, rename in main;
 # 6) Separate LOSS;
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('Ne', type=float, default=1.0, help='Ask VL')
+parser.add_argument('rho', type=float, default=0, help='')
+parser.add_argument('mu', type=float, default=0, help='')
+parser.add_argument('num_repl', type=int, default=0, help='')
+parser.add_argument('l', type=int, default=int(3e3), help='')
+parser.add_argument('number_train_examples', type=float, default=0.9, help='')
+parser.add_argument('device', type=str, default='cuda' if torch.cuda.is_available()
+                    else 'cpu', help='Specify use cpu/cuda')
+parser.add_argument('description', help='Use to mark experiment')
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
