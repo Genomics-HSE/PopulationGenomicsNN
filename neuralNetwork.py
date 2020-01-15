@@ -9,7 +9,7 @@ import utilities
 
 
 # TODO
-# 1) Splite main to functions;
+# +) Splite main to functions;
 # 2) Separete consts;
 # 3) Use arguments;
 # 4) Add db to store results;
@@ -78,7 +78,7 @@ def make_train_step(model, loss_fn, optimizer):
     return train_step
 
 
-def main():
+def make_dataset():
     """Create data generator"""
 
     events = utilities.generate_demographic_events()
@@ -100,7 +100,7 @@ def main():
     number_train_examples = int(num_repl*.9)
 
     trX, trY = [], []
-    for i in range(number_train_examples):
+    for _ in range(number_train_examples):
         example = next(dg)
         trX.append(example[0])
         trY.append(example[1])
@@ -120,7 +120,12 @@ def main():
 
     del trX, trY, teX, teY
 
-    traindata = MyDataset(input, target)
+    return MyDataset(input, target), test_input, test_target
+
+
+def main():
+
+    traindata, _, _ = make_dataset()
 
     loss_per_step = []
 
