@@ -190,3 +190,43 @@ class DataGenerator():
             times[i] = time
 
         return (np.array(haplotype), times, recombination_points)
+
+
+class GenomDataset():
+    def __init__(self, num_replicates: int, length: int = 10,
+                 recombination_rate: float = RHO_HUMAN,
+                 mutation_rate: float = MU_HUMAN,
+                 model: str = "hudson", random_seed: int = 42, sample_size: int = 2):
+
+        events = generate_demographic_events()
+
+        dg = DataGenerator(recombination_rate=recombination_rate,
+                           mutation_rate=mutation_rate,
+                           demographic_events=events,
+                           num_replicates=num_replicates, lengt=length,
+                           model=model, random_seed=random_seed, sample_size=sample_size
+                           )
+
+        data = dg.run_simulation()
+        X, Y = [], []
+
+        for example in dg:
+            X.append(example[0])
+            Y.append(example[1])
+
+        self.X = np.array(X)
+        self.Y = np.array(Y)
+
+        del dg, X, Y
+
+    def get_X(self):
+        return self.X
+
+    def get_Y(self):
+        return self.Y
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, index):
+        return self.X[index], self.Y[index]
