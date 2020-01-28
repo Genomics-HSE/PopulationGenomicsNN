@@ -5,6 +5,9 @@ import torch.nn as nn
 import numpy as np
 import torch
 import argparse
+import json
+import datetime
+
 
 import utilities
 
@@ -20,17 +23,22 @@ import utilities
 
 parser = argparse.ArgumentParser()
 parser.add_argument('Ne', type=float, default=1.0, help='Ask VL')
-parser.add_argument('rho', type=float, default=0, help='')
-parser.add_argument('mu', type=float, default=0, help='')
-parser.add_argument('num_repl', type=int, default=0, help='')
+parser.add_argument('rho', type=float, default=1.6*10e-9, help='')
+parser.add_argument('mu', type=float, default=1.25*10e-8, help='')
+parser.add_argument('num_repl', type=int, default=int(1e5), help='')
 parser.add_argument('l', type=int, default=int(3e3), help='')
-parser.add_argument('number_train_examples', type=float, default=0.9, help='')
+parser.add_argument('ratio_train_examples', type=float, default=0.9, help='')
 parser.add_argument('device', type=str, default='cuda' if torch.cuda.is_available()
                     else 'cpu', help='Specify use cpu/cuda')
-parser.add_argument('description', help='Use to mark experiment')
+
+parser.add_argument('result_dir', default='results/',
+                    help='Use to mark experiment')
+parser.add_argument('description', default='', help='Use to mark experiment')
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+args = parser.parse_args()
 
 
 class MyDataset(torch.utils.data.Dataset):
@@ -91,26 +99,20 @@ def make_train_step(model, loss_fn, optimizer):
     return train_step
 
 
-def make_dataset():
+def make_dataset(args):
     """Create data generator"""
 
     events = utilities.generate_demographic_events()
 
-    Ne = 1
-    rho = 1.6*10e-9*Ne
-    mu = 1.25*10e-8*Ne
-    num_repl = int(1e5)  # 5
-    l = int(3e3)
-
-    dg = utilities.DataGenerator(recombination_rate=rho,
-                                 mutation_rate=mu,
+    dg = utilities.DataGenerator(recombination_rate=args.rho,
+                                 mutation_rate=args.mu,
                                  demographic_events=events,
-                                 num_replicates=num_repl, lengt=l)
+                                 num_replicates=args.num_repl, lengt=args.l)
     dg.run_simulation()
 
     """Create datasets"""
 
-    number_train_examples = int(num_repl*.9)
+    number_train_examples = int(args.num_repl*args.ratio_train_examples)
 
     trX, trY = [], []
     for _ in range(number_train_examples):
@@ -136,6 +138,31 @@ def make_dataset():
     return MyDataset(input, target), test_input, test_target
 
 
+def write_results(model, loss_per_step, score):
+    output_info = {
+        'date': datetime.now(),
+        'model': str(model),
+        'total_loss_per_step': loss_per_step,
+        'score': score,
+        'parametrs':
+        {
+            'random_seed': args.random_seed,
+            'train_steps': args.train_steps,
+            'device': args.device,
+            'events': None,
+            'Ne': args.Ne,
+            'rho': args.rho,
+            'mu': args.mu,
+            'num_repl': args.num_repl,
+            'l': args.l,
+            'ration_train_examples': args.ration_train_examples
+        }
+    }
+    filename = args.result_dir + f'{str(datetime.now())}.json'
+    with open(filename, 'w') as outfile:
+        json.dump(output_info, outfile)
+
+
 def main():
 
     traindata, _, _ = make_dataset()
@@ -151,10 +178,10 @@ def main():
 
     # build the model
     seq = Sequence()
-    seq = seq.to(device)
+    seq = seq.to(args.device)
     seq.double()
     criterion = nn.MSELoss()
-    criterion = criterion.to(device)
+    criterion = criterion.to(args.device)
     #
     optimizer = optim.SGD(seq.parameters(), lr=.001)
     # begin to train
@@ -172,7 +199,9 @@ def main():
                 print(f'BATCH: {i+1}/{total_step} LOSS: {loss}')
         loss_per_step.append(total_loss)
 
-    print(loss_per_step)
+    write_results(
+
+    )
 
 
 main()
