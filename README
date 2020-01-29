@@ -1,3 +1,6 @@
 Follow msprime install instruction (https://msprime.readthedocs.io/en/stable/installation.html)
 Then use follow command to run virtual env:
     source activate msprime-env
+
+Use:
+    python main.py models.simplest

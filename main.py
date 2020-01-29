@@ -27,8 +27,7 @@ parser.add_argument('model')
 
 args = parser.parse_args()
 
-#NN = importlib.import_module(args.model)
-import models.simplest as NN
+NN = importlib.import_module(args.model)
 
 np.random.seed(args.random_seed)
 torch.manual_seed(args.random_seed)
