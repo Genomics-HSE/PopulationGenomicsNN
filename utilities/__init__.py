@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 import msprime
 from math import (exp, log)
