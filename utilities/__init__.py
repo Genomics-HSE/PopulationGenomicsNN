@@ -17,6 +17,8 @@ LAMBDA_EXP = 1.0
 POPULATION_LIMITS = (250, 100000)
 POPULATION = 5000
 
+N = 20
+
 RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
 
@@ -190,7 +192,14 @@ class DataGenerator():
                     time = coal_times[j_time]
             times[i] = time
 
-        return (np.array(haplotype), times, recombination_points)
+        step_of_discratization = max(time)/N
+        def discretization(t):
+            return min(int(t/step_of_discratization) + 1, N)
+
+        d_times = [discretization(t) for t in times]
+
+        return (np.array(haplotype), d_times, recombination_points)
+        #return (np.array(haplotype), times, recombination_points)
 
 
 class MyDataset(torch.utils.data.Dataset):
