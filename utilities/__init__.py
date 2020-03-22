@@ -192,7 +192,7 @@ class DataGenerator():
                     time = coal_times[j_time]
             times[i] = time
 
-        step_of_discratization = max(time)/N
+        step_of_discratization = max(times)/N
         def discretization(t):
             return min(int(t/step_of_discratization) + 1, N)
 
