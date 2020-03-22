@@ -65,7 +65,7 @@ for i in range(args.steps):
 
 
 results = 0.0
-if False:
+if True:
     with torch.no_grad():
         for data in test_loader:
             input, target = data
