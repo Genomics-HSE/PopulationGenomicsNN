@@ -1,6 +1,6 @@
 import torch.optim as optim
 import torch.nn as nn
-
+import torch
 
 def make_train_step(model, loss_fn, optimizer):
     # Builds function that performs a step in the train loop
