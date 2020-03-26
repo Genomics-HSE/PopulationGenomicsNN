@@ -31,6 +31,7 @@ class model(nn.Module):
         self.linear = nn.Linear(51, 1)
 
     def forward(self, input, future=0):
+        device='cuda' if torch.cuda.is_available() else 'cpu'
         outputs = []
         h_t = torch.zeros(input.size(0), 51, dtype=torch.double).to(device)
         c_t = torch.zeros(input.size(0), 51, dtype=torch.double).to(device)

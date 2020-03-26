@@ -69,7 +69,7 @@ if True:
     with torch.no_grad():
         for data in test_loader:
             input, target = data
-            results += abs(model(input) - target)
+            results += abs(model(input).to(args.device) - target)
 
 
 now = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')

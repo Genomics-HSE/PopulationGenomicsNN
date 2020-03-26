@@ -192,11 +192,22 @@ class DataGenerator():
                     time = coal_times[j_time]
             times[i] = time
 
+
+        min_t = min(times)
+        max_t = max(times)
+
+        a = (-np.log(max_t) + N*np.log(min_t))/(N-1)
+        B = (-np.log(min_t) + np.log(max_t))/(N-1)
+
+        def to_T(time):
+            return round((np.log(time)-a)/B)
+
         step_of_discratization = max(times)/N
         def discretization(t):
             return min(int(t/step_of_discratization) + 1, N)
 
-        d_times = [discretization(t) for t in times]
+        #d_times = [discretization(t) for t in times]
+        d_times = [to_T(t) fot t in times]
 
         return (np.array(haplotype), d_times, recombination_points)
         #return (np.array(haplotype), times, recombination_points)
