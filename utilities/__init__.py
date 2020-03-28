@@ -192,7 +192,6 @@ class DataGenerator():
                     time = coal_times[j_time]
             times[i] = time
 
-
         min_t = min(times)
         max_t = max(times)
 
