@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 import msprime
 from math import (exp, log)
@@ -15,6 +16,8 @@ MAX_T_LIMITS = (0.01, 30)
 LAMBDA_EXP = 1.0
 POPULATION_LIMITS = (250, 100000)
 POPULATION = 5000
+
+N = 20
 
 RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
@@ -189,44 +192,74 @@ class DataGenerator():
                     time = coal_times[j_time]
             times[i] = time
 
-        return (np.array(haplotype), times, recombination_points)
+        min_t = min(times)
+        max_t = max(times)
+
+        a = (-np.log(max_t) + N*np.log(min_t))/(N-1)
+        B = (-np.log(min_t) + np.log(max_t))/(N-1)
+
+        def to_T(time):
+            return round((np.log(time)-a)/B)
+
+        step_of_discratization = max(times)/N
+        def discretization(t):
+            return min(int(t/step_of_discratization) + 1, N)
+
+        #d_times = [discretization(t) for t in times]
+        d_times = [to_T(t) fot t in times]
+
+        return (np.array(haplotype), d_times, recombination_points)
+        #return (np.array(haplotype), times, recombination_points)
 
 
-class GenomDataset():
-    def __init__(self, num_replicates: int, length: int = 10,
-                 recombination_rate: float = RHO_HUMAN,
-                 mutation_rate: float = MU_HUMAN,
-                 model: str = "hudson", random_seed: int = 42, sample_size: int = 2):
-
-        events = generate_demographic_events()
-
-        dg = DataGenerator(recombination_rate=recombination_rate,
-                           mutation_rate=mutation_rate,
-                           demographic_events=events,
-                           num_replicates=num_replicates, lengt=length,
-                           model=model, random_seed=random_seed, sample_size=sample_size
-                           )
-
-        data = dg.run_simulation()
-        X, Y = [], []
-
-        for example in dg:
-            X.append(example[0])
-            Y.append(example[1])
-
-        self.X = np.array(X)
-        self.Y = np.array(Y)
-
-        del dg, X, Y
-
-    def get_X(self):
-        return self.X
-
-    def get_Y(self):
-        return self.Y
+class MyDataset(torch.utils.data.Dataset):
+    def __init__(self, x, y):
+        super(MyDataset, self).__init__()
+        assert x.shape[0] == y.shape[0]  # assuming shape[0] = dataset size
+        self.x = x
+        self.y = y
 
     def __len__(self):
-        return len(self.X)
+        return self.y.shape[0]
 
     def __getitem__(self, index):
-        return self.X[index], self.Y[index]
+        return self.x[index], self.y[index]
+
+
+def make_dataset(args):
+    """Create data generator"""
+
+    events = generate_demographic_events()
+
+    dg = DataGenerator(recombination_rate=args.rho,
+                       mutation_rate=args.mu,
+                       demographic_events=events,
+                       num_replicates=args.num_repl, lengt=args.l)
+    dg.run_simulation()
+
+    """Create datasets"""
+
+    number_train_examples = int(args.num_repl*args.ratio_train_examples)
+
+    trX, trY = [], []
+    for _ in range(number_train_examples):
+        example = next(dg)
+        trX.append(example[0])
+        trY.append(example[1])
+
+    teX, teY = [], []
+    for example in dg:
+        teX.append(example[0])
+        teY.append(example[1])
+
+    del dg
+
+    input = torch.from_numpy(np.array(trX, dtype=np.float_))  # .to(device)
+    target = torch.from_numpy(np.array(trY))  # .to(device)
+    test_input = torch.from_numpy(
+        np.array(teX, dtype=np.float_))  # .to(device)
+    test_target = torch.from_numpy(np.array(teY))  # .to(device)
+
+    del trX, trY, teX, teY
+
+    return MyDataset(input, target), MyDataset(test_input, test_target)
