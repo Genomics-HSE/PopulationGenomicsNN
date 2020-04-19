@@ -176,8 +176,7 @@ class DataGenerator():
                 coal_times.append(tree.total_branch_length /
                                   LENGTH_NORMALIZE_CONST)
 
-        if ZIPPED:
-            return (haplotype, (recombination_points, coal_times))
+        # return (haplotype, (recombination_points, coal_times))
 
         # haplotype = "".join([str(h) for h in haplotype])
         times = [.0] * len(haplotype)
@@ -206,24 +205,25 @@ class DataGenerator():
             return min(int(t/step_of_discratization) + 1, N)
 
         #d_times = [discretization(t) for t in times]
-        d_times = [to_T(t) fot t in times]
+        d_times = [to_T(t) for t in times]
 
         return (np.array(haplotype), d_times, recombination_points)
         #return (np.array(haplotype), times, recombination_points)
 
 
 class MyDataset(torch.utils.data.Dataset):
-    def __init__(self, x, y):
+    def __init__(self, x, y, z):
         super(MyDataset, self).__init__()
         assert x.shape[0] == y.shape[0]  # assuming shape[0] = dataset size
         self.x = x
         self.y = y
+        self.z = z
 
     def __len__(self):
         return self.y.shape[0]
 
     def __getitem__(self, index):
-        return self.x[index], self.y[index]
+        return self.x[index], self.y[index], self.z[index]
 
 
 def make_dataset(args):
@@ -241,25 +241,29 @@ def make_dataset(args):
 
     number_train_examples = int(args.num_repl*args.ratio_train_examples)
 
-    trX, trY = [], []
+    trX, trY, trZ = [], [], []
     for _ in range(number_train_examples):
         example = next(dg)
         trX.append(example[0])
         trY.append(example[1])
+        trZ.append(example[2])
 
-    teX, teY = [], []
+    teX, teY, teZ = [], [], []
     for example in dg:
         teX.append(example[0])
         teY.append(example[1])
+        teZ.append(example[2])
 
     del dg
 
     input = torch.from_numpy(np.array(trX, dtype=np.float_))  # .to(device)
     target = torch.from_numpy(np.array(trY))  # .to(device)
+    extra_target = torch.from_numpy(np.array(trZ))
     test_input = torch.from_numpy(
         np.array(teX, dtype=np.float_))  # .to(device)
     test_target = torch.from_numpy(np.array(teY))  # .to(device)
+    test_extra_target = torch.from_numpy(np.array(teZ))
 
-    del trX, trY, teX, teY
+    del trX, trY, teX, teY, trZ, teZ
 
-    return MyDataset(input, target), MyDataset(test_input, test_target)
+    return MyDataset(input, target, extra_target), MyDataset(test_input, test_target, test_extra_target)
