@@ -79,6 +79,10 @@ def give_mu() -> float:
     return exp(np.random.uniform(MU_LIMIT[0], MU_LIMIT[1]))
 
 
+def give_random_rho(base=RHO_HUMAN) -> float:
+    return np.random.uniform(0.0001, 100, 1)[0]*base/10
+
+
 class DataGenerator():
     """
     Use as:
@@ -201,6 +205,7 @@ class DataGenerator():
             return round((np.log(time)-a)/B)
 
         step_of_discratization = max(times)/N
+
         def discretization(t):
             return min(int(t/step_of_discratization) + 1, N)
 
@@ -208,7 +213,7 @@ class DataGenerator():
         d_times = [to_T(t) for t in times]
 
         return (np.array(haplotype), d_times, recombination_points)
-        #return (np.array(haplotype), times, recombination_points)
+        # return (np.array(haplotype), times, recombination_points)
 
 
 class MyDataset(torch.utils.data.Dataset):
