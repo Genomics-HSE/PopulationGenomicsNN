@@ -272,3 +272,9 @@ def make_dataset(args):
     del trX, trY, teX, teY, trZ, teZ
 
     return MyDataset(input, target, extra_target), MyDataset(test_input, test_target, test_extra_target)
+
+
+def to_probability(genome, probability=[0.95, 0.05, 0.0]):
+    return [
+        np.random.choice([locus * 0.5 + np.random.rand()/2, int(not locus) * 0.5 + np.random.rand()/2, 0.0],p=probability)
+        for locus in genome]
