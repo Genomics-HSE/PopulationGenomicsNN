@@ -100,7 +100,7 @@ class DataGenerator():
     def __init__(self, recombination_rate: float,
                  mutation_rate: float,  demographic_events: list, num_replicates: int,
                  lengt: int = 10,  # 3*10**9
-                 model: str = "hudson", random_seed: int = 42, sample_size: int = 2):
+                 model: str = "hudson", random_seed: int = 42, sample_size: int = 2, is_experement: bool = False):
         self.sample_size = sample_size
         self.recombination_rate = recombination_rate
         self.mutation_rate = mutation_rate
@@ -109,7 +109,8 @@ class DataGenerator():
         self.model = model
         self.len = lengt
         self.random_seed = random_seed
-
+        self.is_experement = is_experement
+        
         self._data = None
 
     def __str__(self):
@@ -212,7 +213,19 @@ class DataGenerator():
         #d_times = [discretization(t) for t in times]
         d_times = [to_T(t) for t in times]
 
-        return (np.array(haplotype), d_times, recombination_points)
+        if is_experement:
+            
+            prioty_distribution = [0.0 for i in range(N)]
+            for t in d_times:
+                prioty_distribution[t - 1] += 1
+            prioty_distribution = [p/sum(prioty_distribution) for p in prioty_distribution]
+            
+            intervals_starts = [np.exp**(B*i+a) for i in range(N)]
+            
+            return (np.array(haplotype), d_times, recombination_points), 
+                   s(prioty_distribution, intervals_starts )
+        else:
+            return (np.array(haplotype), d_times, recombination_points)
         # return (np.array(haplotype), times, recombination_points)
 
 
