@@ -110,7 +110,7 @@ class DataGenerator():
         self.len = lengt
         self.random_seed = random_seed
         self.is_experement = is_experement
-        
+
         self._data = None
 
     def __str__(self):
@@ -200,7 +200,11 @@ class DataGenerator():
         max_t = max(times)
 
         a = (-np.log(max_t) + N*np.log(min_t))/(N-1)
-        B = (-np.log(min_t) + np.log(max_t))/(N-1)
+        from pprint import pprint
+        # pprint(times)
+        print(min_t)
+        print(max_t)
+        B = (-np.log(min_t) + np.log(max_t))/(N-1) + 10**(-10)
 
         def to_T(time):
             return round((np.log(time)-a)/B)
@@ -211,19 +215,21 @@ class DataGenerator():
             return min(int(t/step_of_discratization) + 1, N)
 
         #d_times = [discretization(t) for t in times]
+        #from pprint import pprint
+        # pprint(times)
+        #print(f"a {a}, B {B}")
         d_times = [to_T(t) for t in times]
 
-        if is_experement:
-            
-            prioty_distribution = [0.0 for i in range(N)]
+        if self.is_experement:
+            print("Experimente mode on")
+            prioty_distribution = [0.0 for i in range(N+1)]
             for t in d_times:
-                prioty_distribution[t - 1] += 1
-            prioty_distribution = [p/sum(prioty_distribution) for p in prioty_distribution]
-            
-            intervals_starts = [np.exp**(B*i+a) for i in range(N)]
-            
-            return (np.array(haplotype), d_times, recombination_points), 
-                   s(prioty_distribution, intervals_starts )
+                prioty_distribution[t] += 1
+            prioty_distribution = [p/sum(prioty_distribution)
+                                   for p in prioty_distribution]
+
+            intervals_starts = [np.e**(B*i+a) for i in range(N)]
+            return np.array(haplotype), d_times, recombination_points, prioty_distribution, intervals_starts
         else:
             return (np.array(haplotype), d_times, recombination_points)
         # return (np.array(haplotype), times, recombination_points)
