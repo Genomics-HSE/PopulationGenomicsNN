@@ -100,7 +100,7 @@ class DataGenerator():
     def __init__(self, recombination_rate: float,
                  mutation_rate: float,  demographic_events: list, num_replicates: int,
                  lengt: int = 10,  # 3*10**9
-                 model: str = "hudson", random_seed: int = 42, sample_size: int = 2, is_experement: bool = False):
+                 model: str = "hudson", random_seed: int = 42, sample_size: int = 2, N: int = N, is_experement: bool = False):
         self.sample_size = sample_size
         self.recombination_rate = recombination_rate
         self.mutation_rate = mutation_rate
@@ -110,6 +110,7 @@ class DataGenerator():
         self.len = lengt
         self.random_seed = random_seed
         self.is_experement = is_experement
+        self.N = int(N)
 
         self._data = None
 
@@ -199,20 +200,21 @@ class DataGenerator():
         min_t = min(times)
         max_t = max(times)
 
-        a = (-np.log(max_t) + N*np.log(min_t))/(N-1)
+        print(self.N)
+        a = (-np.log(max_t) + self.N*np.log(min_t))/(self.N-1)
         from pprint import pprint
         # pprint(times)
         print(min_t)
         print(max_t)
-        B = (-np.log(min_t) + np.log(max_t))/(N-1) + 10**(-10)
+        B = (-np.log(min_t) + np.log(max_t))/(self.N-1) + 10**(-10)
 
         def to_T(time):
             return round((np.log(time)-a)/B)
 
-        step_of_discratization = max(times)/N
+        step_of_discratization = max(times)/self.N
 
         def discretization(t):
-            return min(int(t/step_of_discratization) + 1, N)
+            return min(int(t/step_of_discratization) + 1, self.N)
 
         #d_times = [discretization(t) for t in times]
         #from pprint import pprint
@@ -222,13 +224,13 @@ class DataGenerator():
 
         if self.is_experement:
             print("Experimente mode on")
-            prioty_distribution = [0.0 for i in range(N+1)]
+            prioty_distribution = [0.0 for i in range(self.N+1)]
             for t in d_times:
                 prioty_distribution[t] += 1
             prioty_distribution = [p/sum(prioty_distribution)
                                    for p in prioty_distribution]
 
-            intervals_starts = [np.e**(B*i+a) for i in range(N)]
+            intervals_starts = [np.e**(B*i+a) for i in range(self.N)]
             return np.array(haplotype), d_times, recombination_points, prioty_distribution, intervals_starts
         else:
             return (np.array(haplotype), d_times, recombination_points)
