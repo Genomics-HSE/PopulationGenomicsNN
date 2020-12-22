@@ -1,3 +1,10 @@
+Основной генератор данных для использования в проекте
+
+Внутри использует msprime, парсит его результаты в понятный для нейронных сетей формат, предоставляет интерфейс для классов PyTorch
+
+
+
+
 Follow msprime install instruction (https://msprime.readthedocs.io/en/stable/installation.html)
 Then use follow command to run virtual env:
     source activate msprime-env
