@@ -2,12 +2,13 @@
 
 Внутри использует msprime, парсит его результаты в понятный для нейронных сетей формат, предоставляет интерфейс для классов PyTorch
 
+Outside of standart libs we use torch, numpy, msprime (see requerments for more details)
 
-
+You can see example in Generator-Example.ipynb
 
 Follow msprime install instruction (https://msprime.readthedocs.io/en/stable/installation.html)
+
 Then use follow command to run virtual env:
     source activate msprime-env
-
 Use:
     python main.py models.simplest

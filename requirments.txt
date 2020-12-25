@@ -1,2 +1,3 @@
-msprime
-torch
+msprime==0.7.4
+torch==1.18.1
+numpy==1.18.1
