@@ -1,3 +1,6 @@
+import json
+import time as tl
+
 import numpy as np
 import torch
 
@@ -222,18 +225,39 @@ class DataGenerator():
         #print(f"a {a}, B {B}")
         d_times = [to_T(t) for t in times]
 
-        if self.is_experement:
-            print("Experimente mode on")
-            prioty_distribution = [0.0 for i in range(self.N+1)]
-            for t in d_times:
-                prioty_distribution[t] += 1
-            prioty_distribution = [p/sum(prioty_distribution)
-                                   for p in prioty_distribution]
+        print("Experimente mode on")
+        prioty_distribution = [0.0 for i in range(self.N+1)]
+        for t in d_times:
+            prioty_distribution[t] += 1
+        prioty_distribution = [p/sum(prioty_distribution)
+                               for p in prioty_distribution]
 
-            intervals_starts = [np.e**(B*i+a) for i in range(self.N)]
-            return np.array(haplotype), d_times, recombination_points, prioty_distribution, intervals_starts
-        else:
-            return (np.array(haplotype), d_times, recombination_points)
+        intervals_starts = [np.e**(B*i+a) for i in range(self.N)]
+        
+        main_data = {
+            'random_seed': self.random_seed,
+            'prioty_distribution': prioty_distribution,
+            'intervals_starts': intervals_starts,
+            'recombination_rate': self.recombination_rate,
+            'sample_size': self.sample_size,
+            'matation_rate': self.mutation_rate,
+            'num_replicates': self.num_replicates,
+            # 'demographic_events': self.demographic_events,
+            'model': self.model,
+            'len': self.len,
+            'is_experement': self.is_experement,
+            'N': self.N
+        }
+        
+        json_object = json.dumps(main_data, indent = 4) 
+        with open(f"{self.random_seed}_{tl.time()}s_exp_info.json", "w+") as outfile: 
+            outfile.write(json_object) 
+        
+        
+        return np.array(haplotype), d_times, recombination_points, prioty_distribution, intervals_starts
+    
+    
+        #   return (np.array(haplotype), d_times, recombination_points)
         # return (np.array(haplotype), times, recombination_points)
 
 
@@ -292,4 +316,5 @@ def make_dataset(args):
 
     del trX, trY, teX, teY, trZ, teZ
 
+    
     return MyDataset(input, target, extra_target), MyDataset(test_input, test_target, test_extra_target)
