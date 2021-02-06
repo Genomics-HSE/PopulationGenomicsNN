@@ -9,8 +9,8 @@ from math import (exp, log)
 
 RHO_HUMAN = 1.6*10e-9
 MU_HUMAN = 1.25*10e-8
-RHO_LIMIT = (log(RHO_HUMAN)-100, log(RHO_HUMAN)+100)
-MU_LIMIT = (log(MU_HUMAN)-100, log(MU_HUMAN)+100)
+RHO_LIMIT = (1.6*10e-8, 1.6*10e-10)
+MU_LIMIT = (1.25*10e-7, 1.25*10e-19)
 
 LENGTH_NORMALIZE_CONST = 4
 ZIPPED = False
@@ -57,7 +57,7 @@ def generate_demographic_events(popilation: int = POPULATION) -> list:
     #    low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1], size=number_of_events)
 
     population_sizes = np.random.beta(
-        a=2, b=5, size=number_of_events)*popilation
+        a=2, b=5, size=number_of_events-1)*popilation
 
     # init_population = np.random.randint(
     #    low=POPULATION_LIMITS[0], high=POPULATION_LIMITS[1])
@@ -71,16 +71,23 @@ def generate_demographic_events(popilation: int = POPULATION) -> list:
         events.append(
             msprime.PopulationParametersChange(t, int(s), growth_rate=0)
         )
+    
+    events.append(
+            msprime.PopulationParametersChange(exp_times[-1], 1, growth_rate=0)
+        )
+    
     return events
 
 
 def give_rho() -> float:
-    return exp(np.random.uniform(RHO_LIMIT[0], RHO_LIMIT[1]))
+    return np.random.uniform(RHO_LIMIT[0], RHO_LIMIT[1])
 
 
 def give_mu() -> float:
-    return exp(np.random.uniform(MU_LIMIT[0], MU_LIMIT[1]))
+    return np.random.uniform(MU_LIMIT[0], MU_LIMIT[1])
 
+def give_random_coeff(mean=.128, var=.05) -> float:
+    return np.random.normal(.128,.005)
 
 def give_random_rho(base=RHO_HUMAN) -> float:
     return np.random.uniform(0.0001, 100, 1)[0]*base
