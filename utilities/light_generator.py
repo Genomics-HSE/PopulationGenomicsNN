@@ -200,7 +200,7 @@ class DataGenerator():
         prioty_distribution = [0.0 for i in range(N+1)]
         for i in range(1, len(recombination_points)):
             ll = recombination_points[i] - recombination_points[i-1]
-            prioty_distribution[d_times[i-1]] += ll
+            prioty_distribution[int(d_times[i-1])] += ll
 
         prioty_distribution = [p/self.len
                                for p in prioty_distribution]
