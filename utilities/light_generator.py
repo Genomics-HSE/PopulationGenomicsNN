@@ -10,7 +10,7 @@ from math import (exp, log)
 RHO_HUMAN = 1.6*10e-9
 MU_HUMAN = 1.25*10e-8
 RHO_LIMIT = (1.6*10e-8, 1.6*10e-10)
-MU_LIMIT = (1.25*10e-7, 1.25*10e-19)
+MU_LIMIT = (1.25*10e-9, 1.25*10e-7)
 
 LENGTH_NORMALIZE_CONST = 4
 ZIPPED = False
@@ -71,11 +71,11 @@ def generate_demographic_events(popilation: int = POPULATION) -> list:
         events.append(
             msprime.PopulationParametersChange(t, int(s), growth_rate=0)
         )
-    
+
     events.append(
-            msprime.PopulationParametersChange(exp_times[-1], 1, growth_rate=0)
-        )
-    
+        msprime.PopulationParametersChange(exp_times[-1], 1, growth_rate=0)
+    )
+
     return events
 
 
@@ -86,8 +86,10 @@ def give_rho() -> float:
 def give_mu() -> float:
     return np.random.uniform(MU_LIMIT[0], MU_LIMIT[1])
 
+
 def give_random_coeff(mean=.128, var=.05) -> float:
-    return np.random.normal(.128,.005)
+    return np.random.normal(.128, .005)
+
 
 def give_random_rho(base=RHO_HUMAN) -> float:
     return np.random.uniform(0.0001, 100, 1)[0]*base
