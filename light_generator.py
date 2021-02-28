@@ -10,7 +10,7 @@ from math import (exp, log)
 RHO_HUMAN = 1.6*10e-9
 MU_HUMAN = 1.25*10e-8
 RHO_LIMIT = (1.6*10e-8, 1.6*10e-10)
-MU_LIMIT = (1.25*10e-9, 1.25*10e-7)
+MU_LIMIT = (1.25*10e-7, 1.25*10e-19)
 
 LENGTH_NORMALIZE_CONST = 4
 ZIPPED = False
@@ -71,11 +71,11 @@ def generate_demographic_events(popilation: int = POPULATION) -> list:
         events.append(
             msprime.PopulationParametersChange(t, int(s), growth_rate=0)
         )
-
+    
     events.append(
-        msprime.PopulationParametersChange(exp_times[-1], 1, growth_rate=0)
-    )
-
+            msprime.PopulationParametersChange(exp_times[-1], 1, growth_rate=0)
+        )
+    
     return events
 
 
@@ -86,10 +86,8 @@ def give_rho() -> float:
 def give_mu() -> float:
     return np.random.uniform(MU_LIMIT[0], MU_LIMIT[1])
 
-
 def give_random_coeff(mean=.128, var=.05) -> float:
-    return np.random.normal(.128, .005)
-
+    return np.random.normal(.128,.005)
 
 def give_random_rho(base=RHO_HUMAN) -> float:
     return np.random.uniform(0.0001, 100, 1)[0]*base
@@ -112,11 +110,7 @@ class DataGenerator():
     def __init__(self, recombination_rate: float,
                  mutation_rate: float,  demographic_events: list, num_replicates: int,
                  lengt: int = 10,  # 3*10**9
-                 model: str = "hudson", random_seed: int = 42, 
-                 sample_size: int = 2, N: int = N,
-                 population_configurations = None,
-                 migration_matrix = None,
-                 is_experement: bool = False):
+                 model: str = "hudson", random_seed: int = 42, sample_size: int = 2, N: int = N, is_experement: bool = False):
         self.sample_size = sample_size
         self.recombination_rate = recombination_rate
         self.mutation_rate = mutation_rate
@@ -127,8 +121,6 @@ class DataGenerator():
         self.random_seed = random_seed
         self.is_experement = is_experement
         self.N = int(N)
-        self.population_configurations = population_configurations
-        self.migration_matrix = migration_matrix
 
         self._data = None
 
@@ -138,16 +130,14 @@ class DataGenerator():
         function run the simulation with given parametrs
         """
         self._data = msprime.simulate(
-            sample_size=self.sample_size if self.population_configurations is None else None,
+            sample_size=self.sample_size,
             recombination_rate=self.recombination_rate,
             mutation_rate=self.mutation_rate,
             random_seed=self.random_seed,
             model=self.model,
             length=self.len,
             num_replicates=self.num_replicates,
-            demographic_events=self.demographic_events,
-            population_configurations = self.population_configurations,
-            migration_matrix = self.migration_matrix,
+            demographic_events=self.demographic_events
         )
         return self._data
 
@@ -210,7 +200,7 @@ class DataGenerator():
         prioty_distribution = [0.0 for i in range(N+1)]
         for i in range(1, len(recombination_points)):
             ll = recombination_points[i] - recombination_points[i-1]
-            prioty_distribution[int(d_times[i-1])] += ll
+            prioty_distribution[d_times[i-1]] += ll
 
         prioty_distribution = [p/self.len
                                for p in prioty_distribution]
